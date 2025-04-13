@@ -79,19 +79,19 @@ exports.deleteTransactionById = async (id) => {
 exports.getTransaction = async () => {
     try {
         const query = `
-        SELECT
-            t.id,
-            t.user_id,
-            t.item_id,
-            t.quantity,
-            t.total,
-            t.status,
-            t.created_at,
-            row_to_json(u.*) AS "user",
-            row_to_json(i.*) AS "item"
-        FROM transactions t
-        JOIN users u   ON u.id = t.user_id
-        JOIN items i   ON i.id = t.item_id;`
+            SELECT
+                t.id,
+                t.user_id,
+                t.item_id,
+                t.quantity,
+                t.total,
+                t.status,
+                t.created_at,
+                row_to_json(u.*) AS "user",
+                row_to_json(i.*) AS "item"
+            FROM transactions t
+            JOIN users u   ON u.id = t.user_id
+            JOIN items i   ON i.id = t.item_id;`
         const res = await db.query(query);
         return res.rows;
     } catch (error) {
