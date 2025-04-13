@@ -16,8 +16,8 @@ app.use(cors({
 }));
 
 app.use(rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 menit
-    max: 500, // maksimal 100 request per IP per 15 menit
+    // windowMs: 15 * 60 * 1000, // 15 menit
+    // max: 500, // maksimal 100 request per IP per 15 menit
     keyGenerator: (req) => req.user?.id || req.ip, // fallback ke IP jika user tidak tersedia
     message: {
         success: false,
