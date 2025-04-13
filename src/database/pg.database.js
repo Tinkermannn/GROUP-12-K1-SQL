@@ -4,7 +4,7 @@ const { Pool } = require("pg");
 
 const pool = new Pool({
     connectionString: process.env.PG_CONNECTION_STRING,
-    max: 50,                 // naikkan dari default 10–20 jadi ~50
+    max: 100,                 // naikkan dari default 10–20 jadi ~50
     idleTimeoutMillis: 30000,
     connectionTimeoutMillis: 5000,
     ssl: { rejectUnauthorized: false },

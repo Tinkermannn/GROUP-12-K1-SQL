@@ -8,6 +8,12 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const xss = require('xss-clean');
 
+const userRateLimiter = rateLimit({
+    windowMs: 5 * 60 * 1000,
+    max: 5000,
+    keyGenerator: (req) => req.user?.id || req.ip
+  });
+
 app.set('trust proxy', 1);
 
 app.use(cors({
@@ -36,7 +42,7 @@ const userRouter = require('./src/routes/user.route');
 const itemRouter = require('./src/routes/item.route')
 const transactionRouter = require('./src/routes/transaction.route')
 
-app.use('/transaction', rateLimit, transactionRouter);
+app.use('/transaction', userRateLimiter, transactionRouter);
 app.use('/store', storeRouter);
 app.use('/user', userRouter);
 app.use('/item', itemRouter);
