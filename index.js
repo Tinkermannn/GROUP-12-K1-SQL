@@ -16,7 +16,7 @@ app.use(cors({
 }));
 
 app.use(rateLimit({
-    windowMs: 1 * 60 * 1000, // 15 menit
+    windowMs: 15 * 60 * 1000, // 15 menit
     max: 500, // maksimal 100 request per IP per 15 menit
     message: {
         success: false,
