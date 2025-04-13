@@ -10,7 +10,7 @@ const xss = require('xss-clean');
 
 const userRateLimiter = rateLimit({
     windowMs: 5 * 60 * 1000,
-    max: 100,
+    max: 5000,
     keyGenerator: (req) => req.user?.id || req.ip
   });
 
@@ -23,7 +23,7 @@ app.use(cors({
 
 app.use(rateLimit({
     windowMs: 15 * 60 * 1000, // 15 menit
-    max: 500, // maksimal 100 request per IP per 15 menit
+    max: 1000, // maksimal 100 request per IP per 15 menit
     message: {
         success: false,
         message: "Too many requests, please try again later.",
@@ -42,7 +42,7 @@ const userRouter = require('./src/routes/user.route');
 const itemRouter = require('./src/routes/item.route')
 const transactionRouter = require('./src/routes/transaction.route')
 
-app.use('/transaction', transactionRouter, userRateLimiter);
+app.use('/transaction', userRateLimiter, transactionRouter);
 app.use('/store', storeRouter);
 app.use('/user', userRouter);
 app.use('/item', itemRouter);
