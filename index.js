@@ -17,7 +17,8 @@ app.use(cors({
 
 app.use(rateLimit({
     windowMs: 15 * 60 * 1000, // 15 menit
-    max: 1000, // maksimal 100 request per IP per 15 menit
+    max: 500, // maksimal 100 request per IP per 15 menit
+    keyGenerator: (req) => req.user?.id || req.ip, // fallback ke IP jika user tidak tersedia
     message: {
         success: false,
         message: "Too many requests, please try again later.",
@@ -36,7 +37,7 @@ const userRouter = require('./src/routes/user.route');
 const itemRouter = require('./src/routes/item.route')
 const transactionRouter = require('./src/routes/transaction.route')
 
-app.use('/transaction', transactionRouter);
+app.use('/transaction', transactionRouter, rateLimit);
 app.use('/store', storeRouter);
 app.use('/user', userRouter);
 app.use('/item', itemRouter);
