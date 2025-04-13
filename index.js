@@ -8,6 +8,8 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const xss = require('xss-clean');
 
+app.set('trust proxy', 1);
+
 app.use(cors({
     origin: 'https://os.netlabdte.com', 
     methods: ['GET', 'POST', 'PUT', 'DELETE'] 
