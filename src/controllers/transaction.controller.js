@@ -1,7 +1,5 @@
 const transactionRepository = require('../repositories/transaction.repository');
 const baseResponse = require('../utils/baseResponse.util');
-const NodeCache = require("node-cache");
-const cache = new NodeCache({ stdTTL: 60 }); // cache 1 menit
 
 exports.createTransaction = async (req, res, next) => {
     const { item_id, quantity, user_id } = req.body;
@@ -56,18 +54,9 @@ exports.deleteTransaction = async (req, res, next) => {
     }
 };
 
-
-
 exports.getTransaction = async (req, res, next) => {
     try {
-        const cached = cache.get("allTransactions");
-        if (cached) {
-            return baseResponse(res, true, 200, "Transactions (cached)", cached);
-        }
-
         const transaction = await transactionRepository.getTransaction();
-        cache.set("allTransactions", transaction);
-
         if (transaction.length === 0) {
             baseResponse(res, true, 200, "Transactions not found", null);
         } else {
