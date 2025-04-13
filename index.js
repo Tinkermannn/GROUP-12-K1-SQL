@@ -8,7 +8,6 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const xss = require('xss-clean');
 
-app.set('trust proxy', 1);
 
 app.use(cors({
     origin: 'https://os.netlabdte.com', 
@@ -17,7 +16,7 @@ app.use(cors({
 
 app.use(rateLimit({
     windowMs: 15 * 60 * 1000, // 15 menit
-    max: 500, // maksimal 100 request per IP per 15 menit
+    max: 100, // maksimal 100 request per IP per 15 menit
     message: {
         success: false,
         message: "Too many requests, please try again later.",
