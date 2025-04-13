@@ -10,7 +10,7 @@ const xss = require('xss-clean');
 
 app.use(rateLimit({
     windowMs: 1 * 60 * 1000, 
-    max: 100,
+    max: 1000,
     message: {
         success: false,
         message: "Too many requests, please try again later.",
@@ -20,7 +20,7 @@ app.use(rateLimit({
 
 const userRateLimiter = rateLimit({
     windowMs: 5 * 60 * 1000,
-    max: 100,
+    max: 5000,
     keyGenerator: (req) => {
         try {
             return req.user?.id || req.ip;
