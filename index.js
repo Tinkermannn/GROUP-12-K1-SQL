@@ -8,11 +8,27 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const xss = require('xss-clean');
 
+app.use(rateLimit({
+    windowMs: 1 * 60 * 1000, // 15 menit
+    max: 1000, // maksimal 100 request per IP per 15 menit
+    message: {
+        success: false,
+        message: "Too many requests, please try again later.",
+        payload: null
+    }
+}));
+
 const userRateLimiter = rateLimit({
     windowMs: 5 * 60 * 1000,
     max: 5000,
-    keyGenerator: (req) => req.user?.id || req.ip
-  });
+    keyGenerator: (req) => {
+        try {
+            return req.user?.id || req.ip;
+        } catch {
+            return req.ip;
+        }
+    }
+});
 
 app.set('trust proxy', 1);
 
@@ -21,15 +37,7 @@ app.use(cors({
     methods: ['GET', 'POST', 'PUT', 'DELETE'] 
 }));
 
-app.use(rateLimit({
-    windowMs: 15 * 60 * 1000, // 15 menit
-    max: 1000, // maksimal 100 request per IP per 15 menit
-    message: {
-        success: false,
-        message: "Too many requests, please try again later.",
-        payload: null
-    }
-}));
+
 
 app.use(helmet());
 
