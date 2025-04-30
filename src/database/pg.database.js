@@ -20,7 +20,7 @@ const connect = async () => {
 }
 
 connect();
-
+    
 const query = async (text, params) => {
     try {
         const res = await pool.query(text, params);
