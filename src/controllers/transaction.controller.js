@@ -7,7 +7,7 @@ exports.createTransaction = async (req, res, next) => {
     if (!item_id || quantity === undefined || quantity === null || !user_id) {
         return baseResponse(res, false, 400, "Missing item_id, quantity, or user_id", null);
     }
-
+    
     const numQuantity = parseInt(quantity);
     if (numQuantity <= 0) {
         return baseResponse(res, false, 400, "Quantity must be larger than 0", null);
