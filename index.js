@@ -31,10 +31,10 @@ const userRateLimiter = rateLimit({
 });
 
 app.use(cors({
-    origin: 'https://os.netlabdte.com', 
-    methods: ['GET', 'POST', 'PUT', 'DELETE'] 
+    origin: ['https://os.netlabdte.com', 'http://localhost:5173'],
+    methods: ['GET', 'POST', 'PUT', 'DELETE']
 }));
-
+  
 
 
 app.use(helmet());

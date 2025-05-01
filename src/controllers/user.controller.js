@@ -43,6 +43,7 @@ exports.userLogin = async (req, res, next) => {
         }
 
         baseResponse(res, true, 200, "Login success", user);
+        console.log(req.body);
 
     } catch (error) {
         next(error);

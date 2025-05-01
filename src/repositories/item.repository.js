@@ -16,14 +16,13 @@ exports.createItem = async (item) => {
 
 exports.getItem = async () => {
     try {
-        const res = await db.query("SELECT * FROM items");
+        const res = await db.query("SELECT * FROM items ORDER BY created_at DESC");
         return res.rows;
     } catch (error) {
         console.error("Error executing query", error);
         throw error;
     }
 };
-
 exports.getItemById = async (id) => {
     try {
         const res = await db.query("SELECT * FROM items WHERE id = $1", [id]);
