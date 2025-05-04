@@ -31,7 +31,7 @@ const userRateLimiter = rateLimit({
 });
 
 app.use(cors({
-    origin: ['https://os.netlabdte.com', 'http://localhost:5173', 'https://cs-9-wilman.vercel.app','http://192.168.76.1:5173'],
+    origin: ['https://os.netlabdte.com', 'http://localhost:5173', 'https://tutam-9-sbd-fe.vercel.app','http://192.168.76.1:5173'],
     methods: ['GET', 'POST', 'PUT', 'DELETE']
 }));
   
