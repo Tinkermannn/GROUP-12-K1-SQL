@@ -43,15 +43,11 @@ app.use(express.json());
 
 app.use(xss());  
 
-const storeRouter = require('./src/routes/store.route'); 
 const userRouter = require('./src/routes/user.route');
-const itemRouter = require('./src/routes/item.route')
-const transactionRouter = require('./src/routes/transaction.route')
+const todoRouter = require('./src/routes/todo.route')
 
-app.use('/transaction', userRateLimiter, transactionRouter);
-app.use('/store', storeRouter);
 app.use('/user', userRouter);
-app.use('/item', itemRouter);
+app.use('/todo', todoRouter);
 
 
 app.use((err, req, res, next) => {
