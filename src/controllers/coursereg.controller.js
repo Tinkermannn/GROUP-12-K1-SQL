@@ -1,4 +1,4 @@
-const courseRegistrationRepository = require('../repositories/user.repository');
+const courseRegistrationRepository = require('../repositories/coursereg.repository');
 const baseResponse = require('../utils/baseResponse.util');
 
 exports.createCourseRegistration = async (req, res, next) => {
