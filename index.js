@@ -41,7 +41,9 @@ app.use(helmet());
 
 app.use(express.json());
 
-app.use(xss());  
+app.use(express.json());
+app.use(express.urlencoded());
+
 
 const userRoutes = require('./src/routes/user.route');
 const studentRoutes = require('./src/routes/student.route');

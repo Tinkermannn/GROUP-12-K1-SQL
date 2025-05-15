@@ -79,7 +79,8 @@ exports.updateUser = async (req, res, next) => {
         if (!existingUser) {
             return baseResponse(res, false, 404, "User tidak ditemukan", null);
         }
-        
+        console.log(emailRegex.test(email)); // should print true
+
         // Validate email if provided
         if (email && !emailRegex.test(email)) {
             return baseResponse(res, false, 400, "Format email tidak valid", null);
