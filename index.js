@@ -42,7 +42,7 @@ app.use(helmet());
 app.use(express.json());
 
 app.use(express.json());
-app.use(express.urlencoded());
+app.use(express.urlencoded({ extended: true }));
 
 
 const userRoutes = require('./src/routes/user.route');
