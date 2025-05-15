@@ -1,81 +1,142 @@
 const db = require('../database/pg.database');
 const bcrypt = require('bcrypt');
-const saltRounds = 10;
 
-exports.registerUser = async ({ username, email, password }) => {
-    const existing = await db.query("SELECT * FROM users WHERE email = $1", [email]);
-    if (existing.rows.length > 0) {
-        const err = new Error("Email already used");
-        err.status = 409;
-        throw err;
-    }
-
-    const hash = await bcrypt.hash(password, saltRounds);
-    const result = await db.query(`
-        INSERT INTO users (username, email, password)
-        VALUES ($1, $2, $3)
-        RETURNING *
-    `, [username, email, hash]);
-
-    return result.rows[0];
-};
-
-exports.loginUser = async (email) => {
-    const result = await db.query("SELECT * FROM users WHERE email = $1", [email]);
-    return result.rows[0];
-};
-
-exports.updateUser = async (user) => {
-    try {
-        const userCheck = await db.query("SELECT * FROM users WHERE user_id = $1", [user.user_id]);
-        if (!userCheck || userCheck.rowCount === 0) {
-            throw new Error("User not found");
-        }
-        
-        // Jika password ada dan perlu dienkripsi
-        let password = user.password;
-        if (password) {
-            password = await bcrypt.hash(password, 10);
-        } else {
-            password = userCheck.rows[0].password; // Gunakan password lama
-        }
-        
-        // Ambil nilai yang ada jika tidak ada nilai baru yang diberikan
-        const username = user.username || userCheck.rows[0].username;
-        const email = user.email || userCheck.rows[0].email;
-        const profile_image_url = user.profile_image_url || userCheck.rows[0].profile_image_url;
-        
-        const res = await db.query(
-            `UPDATE users 
-             SET username = $2, email = $3, password = $4, profile_image_url = $5 
-             WHERE user_id = $1 
-             RETURNING *`,
-            [user.user_id, username, email, password, profile_image_url]
-        );
-        
-        return res.rows[0];
-    } catch (error) {
-        console.error("Error executing query", error);
-        throw error;
-    }
-}
-
-exports.deleteUser = async (user_id) => {
-    const result = await db.query("DELETE FROM users WHERE user_id = $1 RETURNING *", [user_id]);
-    return result.rows[0];
-};
-
-exports.getUserById = async (user_id) => {
-    const result = await db.query(
-        "SELECT * FROM users WHERE user_id = $1",
-        [user_id]
+exports.createUser = async (userData) => {
+    const { username, email, password, role } = userData;
+    
+    // Hash password
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+    
+    const [result] = await db.execute(
+        `INSERT INTO users (username, email, password, role) 
+         VALUES (?, ?, ?, ?)`,
+        [username, email, hashedPassword, role]
     );
+    
+    const userId = result.insertId;
+    
+    // Get the created user (excluding password)
+    const [users] = await db.execute(
+        `SELECT id, username, email, role, created_at, updated_at 
+         FROM users 
+         WHERE id = ?`,
+        [userId]
+    );
+    
+    return users[0];
+};
 
-    if (result.rows.length === 0) {
-        const err = new Error("User not found");
-        err.status = 404;
-        throw err;
+exports.getAllUsers = async () => {
+    const [users] = await db.execute(
+        `SELECT id, username, email, role, created_at, updated_at 
+         FROM users 
+         ORDER BY created_at DESC`
+    );
+    
+    return users;
+};
+
+exports.getUserById = async (id) => {
+    const [users] = await db.execute(
+        `SELECT id, username, email, role, created_at, updated_at 
+         FROM users 
+         WHERE id = ?`,
+        [id]
+    );
+    
+    return users.length > 0 ? users[0] : null;
+};
+
+exports.findByUsername = async (username) => {
+    const [users] = await db.execute(
+        `SELECT id FROM users WHERE username = ?`,
+        [username]
+    );
+    
+    return users.length > 0;
+};
+
+exports.findByEmail = async (email) => {
+    const [users] = await db.execute(
+        `SELECT id FROM users WHERE email = ?`,
+        [email]
+    );
+    
+    return users.length > 0;
+};
+
+exports.updateUser = async (userData) => {
+    const { id, username, email, password, role } = userData;
+    
+    const updateFields = [];
+    const updateValues = [];
+    
+    // For each property in userData, add it to the update query
+    if (username !== undefined) {
+        updateFields.push('username = ?');
+        updateValues.push(username);
     }
+    
+    if (email !== undefined) {
+        updateFields.push('email = ?');
+        updateValues.push(email);
+    }
+    
+    if (role !== undefined) {
+        updateFields.push('role = ?');
+        updateValues.push(role);
+    }
+    
+    // Handle password separately if it's being updated
+    if (password !== undefined) {
+        const salt = await bcrypt.genSalt(10);
+        const hashedPassword = await bcrypt.hash(password, salt);
+        
+        updateFields.push('password = ?');
+        updateValues.push(hashedPassword);
+    }
+    
+    if (updateFields.length === 0) {
+        return exports.getUserById(id);
+    }
+    
+    // Add the update timestamp
+    updateFields.push('updated_at = CURRENT_TIMESTAMP');
+    
+    // Add the id for the WHERE clause
+    updateValues.push(id);
+    
+    await db.execute(
+        `UPDATE users 
+         SET ${updateFields.join(', ')} 
+         WHERE id = ?`,
+        updateValues
+    );
+    
+    return exports.getUserById(id);
+};
 
-    return result.rows[0];
+exports.deleteUser = async (id) => {
+    const user = await exports.getUserById(id);
+    
+    if (!user) {
+        return null;
+    }
+    
+    await db.execute(
+        `DELETE FROM users WHERE id = ?`,
+        [id]
+    );
+    
+    return user;
+};
+
+exports.findUserByEmailWithPassword = async (email) => {
+    const [users] = await db.execute(
+        `SELECT * FROM users WHERE email = ?`,
+        [email]
+    );
+    
+    return users.length > 0 ? users[0] : null;
 };

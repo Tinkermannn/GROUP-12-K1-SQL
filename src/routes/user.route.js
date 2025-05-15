@@ -1,15 +1,12 @@
 const express = require('express');
-const userController = require('../controllers/user.controller');
 const router = express.Router();
+const userController = require('../controllers/user.controller');
 
-const multer = require('multer');
-const storage = multer.memoryStorage();
-const upload = multer({ storage: storage });
-
-router.post('/register', userController.register);
-router.post('/login', userController.login);
-router.put('/update', upload.single('profile_image_url'), userController.update);
-router.delete('/:user_id', userController.delete);
-router.get('/:user_id', userController.getUserById);
+router.post('/', userController.createUser);
+router.post('/login', userController.loginUser);
+router.get('/', userController.getAllUsers);
+router.get('/:id', userController.getUserById);
+router.put('/:id', userController.updateUser);
+router.delete('/:id', userController.deleteUser);
 
 module.exports = router;

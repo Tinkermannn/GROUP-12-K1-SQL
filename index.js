@@ -43,11 +43,19 @@ app.use(express.json());
 
 app.use(xss());  
 
-const userRouter = require('./src/routes/user.route');
-const todoRouter = require('./src/routes/todo.route')
+const userRoutes = require('./src/routes/user.route');
+const studentRoutes = require('./src/routes/student.route');
+const lecturerRoutes = require('./src/routes/lecturer.route');
+const courseRoutes = require('./src/routes/course.route');
+const courseRegistrationRoutes = require('./src/routes/coursereg.route');
 
-app.use('/user', userRouter);
-app.use('/todo', todoRouter);
+// Mount routes
+app.use('/users', userRoutes);
+app.use('/students', studentRoutes);
+app.use('/lecturers', lecturerRoutes);
+app.use('/courses', courseRoutes);
+app.use('/registrations', courseRegistrationRoutes);
+
 
 
 app.use((err, req, res, next) => {
