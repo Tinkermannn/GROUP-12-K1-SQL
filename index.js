@@ -50,13 +50,11 @@ const courseRoutes = require('./src/routes/course.route');
 const courseRegistrationRoutes = require('./src/routes/coursereg.route');
 
 // Mount routes
-app.use('/users', userRoutes);
-app.use('/students', studentRoutes);
-app.use('/lecturers', lecturerRoutes);
-app.use('/courses', courseRoutes);
-app.use('/registrations', courseRegistrationRoutes);
-
-
+app.use('/user', userRoutes);
+app.use('/student', studentRoutes);
+app.use('/lecturer', lecturerRoutes);
+app.use('/course', courseRoutes);
+app.use('/registration', courseRegistrationRoutes);
 
 app.use((err, req, res, next) => {
     console.error(err.stack);

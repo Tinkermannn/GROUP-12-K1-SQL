@@ -2,116 +2,114 @@ const db = require('../database/pg.database');
 
 exports.createStudent = async (studentData) => {
     const { user_id, nim, name, major, semester } = studentData;
-    
-    const [result] = await db.execute(
+
+    const result = await db.query(
         `INSERT INTO students (user_id, nim, name, major, semester) 
-         VALUES (?, ?, ?, ?, ?)`,
+         VALUES ($1, $2, $3, $4, $5)
+         RETURNING id`,
         [user_id, nim, name, major, semester]
     );
-    
-    return exports.getStudentById(result.insertId);
+
+    return exports.getStudentById(result.rows[0].id);
 };
 
 exports.getAllStudents = async () => {
-    const [students] = await db.execute(
+    const result = await db.query(
         `SELECT s.*, u.username, u.email, u.role
          FROM students s
          JOIN users u ON s.user_id = u.id
          ORDER BY s.updated_at DESC`
     );
-    
-    return students;
+
+    return result.rows;
 };
 
 exports.getStudentById = async (id) => {
-    const [students] = await db.execute(
+    const result = await db.query(
         `SELECT s.*, u.username, u.email, u.role
          FROM students s
          JOIN users u ON s.user_id = u.id
-         WHERE s.id = ?`,
+         WHERE s.id = $1`,
         [id]
     );
-    
-    return students.length > 0 ? students[0] : null;
+
+    return result.rows[0] || null;
 };
 
 exports.findByNim = async (nim) => {
-    const [students] = await db.execute(
-        `SELECT * FROM students WHERE nim = ?`,
+    const result = await db.query(
+        `SELECT * FROM students WHERE nim = $1`,
         [nim]
     );
-    
-    return students.length > 0 ? students[0] : null;
+
+    return result.rows[0] || null;
 };
 
 exports.updateStudent = async (studentData) => {
     const { id, user_id, nim, name, major, semester } = studentData;
-    
+
     const updateFields = [];
     const updateValues = [];
-    
+    let paramIndex = 1;
+
     if (user_id !== undefined) {
-        updateFields.push('user_id = ?');
+        updateFields.push(`user_id = $${paramIndex++}`);
         updateValues.push(user_id);
     }
-    
     if (nim !== undefined) {
-        updateFields.push('nim = ?');
+        updateFields.push(`nim = $${paramIndex++}`);
         updateValues.push(nim);
     }
-    
     if (name !== undefined) {
-        updateFields.push('name = ?');
+        updateFields.push(`name = $${paramIndex++}`);
         updateValues.push(name);
     }
-    
     if (major !== undefined) {
-        updateFields.push('major = ?');
+        updateFields.push(`major = $${paramIndex++}`);
         updateValues.push(major);
     }
-    
     if (semester !== undefined) {
-        updateFields.push('semester = ?');
+        updateFields.push(`semester = $${paramIndex++}`);
         updateValues.push(semester);
     }
-    
+
     if (updateFields.length === 0) {
         return exports.getStudentById(id);
     }
-    
-    updateFields.push('updated_at = CURRENT_TIMESTAMP');
+
+    updateFields.push(`updated_at = CURRENT_TIMESTAMP`);
     updateValues.push(id);
-    
-    await db.execute(
+
+    await db.query(
         `UPDATE students 
          SET ${updateFields.join(', ')}
-         WHERE id = ?`,
+         WHERE id = $${paramIndex}`,
         updateValues
     );
-    
+
     return exports.getStudentById(id);
 };
 
 exports.deleteStudent = async (id) => {
     const student = await exports.getStudentById(id);
-    
+
     if (!student) {
         return null;
     }
-    
-    await db.execute(
-        `DELETE FROM students WHERE id = ?`,
+
+    await db.query(
+        `DELETE FROM students WHERE id = $1`,
         [id]
     );
-    
+
     return student;
 };
 
 exports.checkUserExists = async (userId) => {
-    const [users] = await db.execute(
-        `SELECT 1 FROM users WHERE id = ?`,
+    const result = await db.query(
+        `SELECT 1 FROM users WHERE id = $1`,
         [userId]
     );
-    
-    return users.length > 0;
+
+    return result.rows.length > 0;
 };

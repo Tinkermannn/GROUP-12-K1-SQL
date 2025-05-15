@@ -2,66 +2,67 @@ const db = require('../database/pg.database');
 
 exports.createLecturer = async (lecturerData) => {
     const { name, nidn, department } = lecturerData;
-    
-    const [result] = await db.execute(
+
+    const result = await db.query(
         `INSERT INTO lecturers (name, nidn, department) 
-         VALUES (?, ?, ?)`,
+         VALUES ($1, $2, $3)
+         RETURNING id`,
         [name, nidn, department]
     );
-    
-    return exports.getLecturerById(result.insertId);
+
+    return exports.getLecturerById(result.rows[0].id);
 };
 
 exports.getAllLecturers = async () => {
-    const [lecturers] = await db.execute(
+    const result = await db.query(
         `SELECT * FROM lecturers ORDER BY updated_at DESC`
     );
-    
-    return lecturers;
+
+    return result.rows;
 };
 
 exports.getLecturerById = async (id) => {
-    const [lecturers] = await db.execute(
-        `SELECT * FROM lecturers WHERE id = ?`,
+    const result = await db.query(
+        `SELECT * FROM lecturers WHERE id = $1`,
         [id]
     );
-    
-    return lecturers.length > 0 ? lecturers[0] : null;
+
+    return result.rows[0] || null;
 };
 
 exports.findByNidn = async (nidn) => {
-    const [lecturers] = await db.execute(
-        `SELECT * FROM lecturers WHERE nidn = ?`,
+    const result = await db.query(
+        `SELECT * FROM lecturers WHERE nidn = $1`,
         [nidn]
     );
-    
-    return lecturers.length > 0 ? lecturers[0] : null;
+
+    return result.rows[0] || null;
 };
 
 exports.updateLecturer = async (lecturerData) => {
     const { id, name, nidn, department } = lecturerData;
-    
-    await db.execute(
+
+    await db.query(
         `UPDATE lecturers 
-         SET name = ?, nidn = ?, department = ?, updated_at = CURRENT_TIMESTAMP
-         WHERE id = ?`,
+         SET name = $1, nidn = $2, department = $3, updated_at = CURRENT_TIMESTAMP
+         WHERE id = $4`,
         [name, nidn, department, id]
     );
-    
+
     return exports.getLecturerById(id);
 };
 
 exports.deleteLecturer = async (id) => {
     const lecturer = await exports.getLecturerById(id);
-    
+
     if (!lecturer) {
         return null;
     }
-    
-    await db.execute(
-        `DELETE FROM lecturers WHERE id = ?`,
+
+    await db.query(
+        `DELETE FROM lecturers WHERE id = $1`,
         [id]
     );
-    
+
     return lecturer;
 };
